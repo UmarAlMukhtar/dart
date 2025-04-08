@@ -6,7 +6,7 @@ void main() {
   double? n1 = double.parse(stdin.readLineSync()!);
   print("Enter the second number: ");
   double? n2 = double.parse(stdin.readLineSync()!);
-  print("Choose an operation (+, -, *, /): ");
+  print("Choose an operation (+, -, *, /, comp): ");
   String? operation = stdin.readLineSync();
   double result = 0.0;
   switch (operation) {
@@ -27,6 +27,16 @@ void main() {
         return;
       }
       break;
+
+    case 'comp':
+      print('Comparison results');
+      print('$n1 > $n2 : ${n1 > n2}');
+      print('$n1 < $n2 : ${n1 < n2}');
+      print('$n1 >= $n2 : ${n1 >= n2}');
+      print('$n1 <= $n2 : ${n1 <= n2}');
+      print('$n1 == $n2 : ${n1 == n2}');
+      print('$n1 != $n2 : ${n1 != n2}');
+      return;
     default:
       print("Error: Invalid operation.");
       return;
