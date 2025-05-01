@@ -14,8 +14,12 @@ class Password {
     if (length >= 12 && hasUpper && hasLower && hasDigit && hasSpecial) {
       return "Strong";
     } else if (length >= 8 &&
-        (hasUpper || hasLower) &&
-        (hasDigit || hasSpecial)) {
+        ((hasUpper && hasLower) ||
+            (hasUpper && hasDigit) ||
+            (hasUpper && hasSpecial) ||
+            (hasLower && hasDigit) ||
+            (hasLower && hasSpecial) ||
+            (hasDigit && hasSpecial))) {
       return "Medium";
     } else {
       return "Weak";
@@ -23,30 +27,52 @@ class Password {
   }
 
   String generatePassword(String level) {
-    int? length;
+    final Random random = Random();
+    String _randomFrom(String chars, int len) =>
+        List.generate(len, (_) => chars[random.nextInt(chars.length)]).join();
+
     switch (level.toLowerCase()) {
       case 'strong':
-        length = 16;
-        break;
+        const upper = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        const lower = 'abcdefghijklmnopqrstuvwxyz';
+        const digits = '0123456789';
+        const special = '!@#\$%^&*()_+[]{}|;:,.<>?';
+        const all = upper + lower + digits + special;
+        List<String> chars = [
+          upper[random.nextInt(upper.length)],
+          lower[random.nextInt(lower.length)],
+          digits[random.nextInt(digits.length)],
+          special[random.nextInt(special.length)],
+        ];
+        chars.addAll(_randomFrom(all, 12 - chars.length).split(''));
+        chars.shuffle(random);
+        return chars.join();
       case 'medium':
-        length = 12;
-        break;
+        const upper = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        const lower = 'abcdefghijklmnopqrstuvwxyz';
+        const digits = '0123456789';
+        const special = '!@#\$%^&*()_+[]{}|;:,.<>?';
+        List<String> pools = [upper, lower, digits, special];
+        pools.shuffle(random);
+        String pool1 = pools[0];
+        String pool2 = pools[1];
+        List<String> chars = [
+          pool1[random.nextInt(pool1.length)],
+          pool2[random.nextInt(pool2.length)],
+        ];
+        const all = upper + lower + digits + special;
+        chars.addAll(_randomFrom(all, 8 - chars.length).split(''));
+        chars.shuffle(random);
+        return chars.join();
       case 'weak':
-        length = 8;
-        break;
+        const letters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        const digits = '0123456789';
+        List<String> pools = [letters, digits];
+        String pool = pools[random.nextInt(pools.length)];
+        return _randomFrom(pool, 6);
       default:
-        break;
+        return "Invalid level";
     }
-    if (length == null) {
-      return "Invalid level";
-    }
-    const chars =
-        'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#\$%^&*()_+[]{}|;:,.<>?';
-    final Random random = Random();
-    return List.generate(
-      length,
-      (index) => chars[random.nextInt(chars.length)],
-    ).join();
   }
 }
 
@@ -123,7 +149,6 @@ void main(List<String> arguments) {
       print('[VERBOSE] All arguments: ${results.arguments}');
     }
   } on FormatException catch (e) {
-    // Print usage information if an invalid argument was provided.
     print(e.message);
     print('');
     printUsage(argParser);
